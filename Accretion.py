@@ -1,14 +1,8 @@
-#Calculates the radio photons from accreting PBHs.
+#Calculates the radio photons from accreting PBHs. If you use this code please consider citing arXiv:2110.11975
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as scint
 from scipy import interpolate
-from colossus.cosmology import cosmology
-from colossus.lss import mass_function
-from colossus.lss import peaks
-my_cosmo = {'flat': True, 'H0': 67.4, 'Om0': 0.315, 'Ob0': 0.049, 'sigma8': 0.811, 'ns': 0.965,'relspecies': False,'Tcmb0': 2.725}
-cosmo = cosmology.setCosmology('my_cosmo', my_cosmo)
-
 Ho=67.4
 Ω_m=0.315
 Ω_B=0.049
@@ -37,17 +31,14 @@ def ERB(E):
 def ERB1(E):
         return Tγo+24.1*(E/1.282)**-2.6
 
-J0=A*ρdm*4.12e46*scint.quad(lambda Z:Z**(n+1)/H(Z),1,1000)[0]
-print('J(E=5.9 μeV)=',J0,'s^-1.m^-2.sr^-1')
-print('T =',9.5e-61*J0/(5.9e-6*1.6e-19)**2,' K')
+#Uncomment the following 4 lines to calculate the specific intensity and equivalent brightness temperature at the wavelength of 21 cm. 
+#J_21cm=A*ρdm*4.12e46*scint.quad(lambda Z:Z**(n+1)/H(Z),1,1000)[0]
+#print('J(E=5.9 μeV)=',J_21cm,'s^-1.m^-2.sr^-1')
+#print('T =',9.5e-61*J_21cm/(5.9e-6*1.6e-19)**2,' K')
 
 E=np.logspace(-1,2)
 J=(E/5.9)**(n+2)*A*ρdm*4.12e46*scint.quad(lambda Z:Z**(n+1)/H(Z),1,np.inf)[0]
 T=9.5e-61*J/(E*1e-6*1.6e-19)**2
-
-plt.rc('text', usetex=True)
-plt.rc('font', family='serif')
-plt.rc('text.latex', preamble=r'\usepackage{siunitx}')
 
 fig,ax=plt.subplots()
 
@@ -61,7 +52,7 @@ ax.axvspan(0.1, 43.4,color='lightgrey',alpha=0.5)
 ax.legend(fontsize=16,loc=1,frameon=False)
 ax.set_yscale('log')
 ax.set_xscale('log')
-ax.set_xlabel('$E\,(\si{\micro\electronvolt}$)',fontsize=22)
+ax.set_xlabel('$E\,(\mu$eV)',fontsize=22)
 ax.set_ylabel('$T_{\mathrm{r}}$ (K)',fontsize=22)
 
 secax = ax.secondary_xaxis('top', functions=(E2nu,nu2E))
@@ -76,4 +67,3 @@ ax.yaxis.set_ticks_position('both')
 plt.xlim([0.1,1e2])
 plt.ylim([1,3e4])
 plt.show()
-
