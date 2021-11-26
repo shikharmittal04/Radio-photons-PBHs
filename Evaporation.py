@@ -1,4 +1,4 @@
-#Calculates the radio background from low mass evaporating PBHs.
+#Calculates the radio background from low mass evaporating PBHs. If you use this code please consider citing arXiv:2110.11975
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.integrate as scint
@@ -17,7 +17,8 @@ Yp=0.245
 def H(Z):       
         return Ho*(Ω_r*Z**4+Ω_m*Z**3+Ω_Λ)**0.5
 
-
+#Important: the following 2 inputs are obtained from the C code BlackHawk. 'E.npy' contains the energies in GeV
+#and 'flux.npy' contains the corresponding flux values in units of GeV^-1 s^-1. An example is provided; for mass 10^25 kg. Each array has 1000 elements.
 E=np.load('E.npy')
 flux=np.load('flux.npy')
 
@@ -29,19 +30,20 @@ def ene_flx(E,Z):
     return E*d2NdEdt_rs
 
 Z=np.linspace(1,1e3,10000)
-n=920
+n=920           #Choose any value <=1000 for this. 
 J=np.zeros(n)
-M=1e25          #mass of black hole in kg
+M=1e25          # Enter the mass of black hole in kg
 
-#The following is final quantity of our interest. It gives the specific intensity in units of (s^-1.m^-2.sr^-1).
+#The following is final quantity of our interest (equation 15 from the paper). It gives the specific intensity in units of (s^-1.m^-2.sr^-1).
 for i in range(n):
         J[i]=6.28*(Ω_m-Ω_B)*scint.trapz(ene_flx(E[i],Z)/H(Z),Z)*1/M
 
-tck1 = interpolate.splrep(1e15*E[0:n],J)
-J_21cm=interpolate.splev(5.9,tck1)
 
-print('J(E=5.9 μeV)=',J_21cm)
-print('T =',9.5e-61*J_21cm/(5.9e-6*1.6e-19)**2,' K')
+# Uncomment the following 4 lines to calculate the specific intensity and equivalent brightness temperature at the wavelength of 21 cm.  
+#tck1 = interpolate.splrep(1e15*E[0:n],J)
+#J_21cm=interpolate.splev(5.9,tck1)
+#print('J(E=5.9 μeV)=',J_21cm)
+#print('T =',9.5e-61*J_21cm/(5.9e-6*1.6e-19)**2,' K')
 
 
 fig,ax=plt.subplots()
